@@ -1,8 +1,7 @@
-#load model from checkpoints
-#feed single input or inputs into model
-#get raw outputs
-#make into nice print
 '''
+Script to perform various analyses on trained model
+Currently implemented confusion matrix and working on t-SNE
+reference classes:
     'CH': 0 : Changeup
     'CU': 1 : Curveball
     'EP': 2 : Eephus
@@ -47,7 +46,6 @@ def evaluate_classification(model, test_loader):
     }
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    device = 'cpu'
     model.to(device)
 
     # Set the model to evaluation mode
@@ -79,6 +77,7 @@ def evaluate_classification(model, test_loader):
     print("\nClassification Report:")
     print(class_report)
 
+# currently bugged!
 def visualize_tSNE(model, test_loader):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
@@ -125,7 +124,7 @@ def main():
             setattr(args, k, v)
 
     # Load the model
-    model_path = 'checkpoints/PID_Linear_trained.pt'  # Replace with the actual path to your trained model
+    model_path = 'checkpoints/PID_Linear_trained.pt'
     model = load_model(model_path)
 
     # Load the data loaders

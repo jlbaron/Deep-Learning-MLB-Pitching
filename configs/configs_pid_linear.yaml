@@ -11,7 +11,7 @@ network:
   dropout: 0.1
 
 data:
-  dataset: pitch_identification_nonan.pickle
+  dataset: data//pitch_identification_nonan.pkl
   beta: .9999999
   weight_decay: 0.00001
 

@@ -1,6 +1,5 @@
 Train:
   batch_size: 1024
-  train_ratio: .8
   learning_rate: 0.00001
   reg: 0.0005
   epochs: 10
@@ -14,7 +13,7 @@ network:
   dropout: 0.1
 
 data:
-  dataset: pitch_identification_nonan.pickle
+  dataset: pitch_identification
   beta: .9999999
   weight_decay: 0.00001
 
