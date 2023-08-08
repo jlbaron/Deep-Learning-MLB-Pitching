@@ -1,0 +1,22 @@
+Train:
+  batch_size: 1024
+  train_ratio: .8
+  learning_rate: 0.00001
+  reg: 0.0005
+  epochs: 10
+
+network:
+  model: PID_Transformer 
+  d_model: 128
+  nhead: 4 #16
+  dim_feedforward: 2048
+  num_layers: 2 #ADD LAYER NEXT
+  dropout: 0.1
+
+data:
+  dataset: pitch_identification_nonan.pickle
+  beta: .9999999
+  weight_decay: 0.00001
+
+loss:
+  loss_type: CE # CE or Focal

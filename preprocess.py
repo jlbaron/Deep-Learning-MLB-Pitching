@@ -13,20 +13,20 @@ def save_selected_columns_to_pickle(input_csv, output_pickle, selected_columns):
     with open(output_pickle, 'wb') as f:
         pickle.dump(df_selected, f)
 
-# input_csv = 'pitches.csv'
-# output_pickle = 'pitch_identification.pickle'
-# selected_columns = ['px', 'pz', 'start_speed', 'end_speed', 'spin_rate', 'spin_dir', 'ax', 'ay', 'az', 'vx0', 'vy0', 'vz0', 'break_angle', 'break_length', 'break_y', 'pitch_type']  # Replace with your desired column names
+input_csv = 'pitches.csv'
+output_pickle = 'pitch_identification.pkl'
+selected_columns = ['px', 'pz', 'start_speed', 'end_speed', 'spin_rate', 'spin_dir', 'ax', 'ay', 'az', 'vx0', 'vy0', 'vz0', 'break_angle', 'break_length', 'break_y', 'pitch_type']  # Replace with your desired column names
 
-# # Get absolute paths to handle different working directories
-# input_csv = os.path.abspath(input_csv)
-# output_pickle = os.path.abspath(output_pickle)
+# Get absolute paths to handle different working directories
+input_csv = os.path.abspath(input_csv)
+output_pickle = os.path.abspath(output_pickle)
 
-# # Check if the input CSV file exists
-# if not os.path.exists(input_csv):
-#     print(f"Error: Input CSV file '{input_csv}' not found.")
-# else:
-#     save_selected_columns_to_pickle(input_csv, output_pickle, selected_columns)
-#     print(f"Selected columns saved to '{output_pickle}'.")
+# Check if the input CSV file exists
+if not os.path.exists(input_csv):
+    print(f"Error: Input CSV file '{input_csv}' not found.")
+else:
+    save_selected_columns_to_pickle(input_csv, output_pickle, selected_columns)
+    print(f"Selected columns saved to '{output_pickle}'.")
 
 def view_data_from_pickle(pickle_file, num_rows=5):
     with open(pickle_file, 'rb') as f:
@@ -67,12 +67,12 @@ def extract_max_min_values(pickle_file):
 
 # Example usage:
 # Replace 'data.pickle' with the path to your pickle file
-input_pickle_file = 'pitch_identification_nonan.pickle'
-max_values, min_values = extract_max_min_values(input_pickle_file)
+# input_pickle_file = 'pitch_identification_nonan.pkl'
+# max_values, min_values = extract_max_min_values(input_pickle_file)
 
-# Display max and min values for each feature
-for column in max_values:
-    print(f"Feature: {column}, Max Value: {max_values[column]}, Min Value: {min_values[column]}")
+# # Display max and min values for each feature
+# for column in max_values:
+#     print(f"Feature: {column}, Max Value: {max_values[column]}, Min Value: {min_values[column]}")
 
 
 def remove_rows_with_nan_and_save(input_file, output_file):
@@ -89,6 +89,6 @@ def remove_rows_with_nan_and_save(input_file, output_file):
     data.to_pickle(output_file)
 
 # Example usage:
-# input_filename = "pitch_identification.pickle"
-# output_filename = "pitch_identification_nonan.pickle"
-# remove_rows_with_nan_and_save(input_filename, output_filename)
+input_filename = "pitch_identification.pkl"
+output_filename = "pitch_identification_nonan.pkl"
+remove_rows_with_nan_and_save(input_filename, output_filename)

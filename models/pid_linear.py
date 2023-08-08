@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class PitchIdentifierLinear(nn.Module):
-    def __init__(self, hidden_dim=1024, dropout=0.1, features=15, num_classes=16, device='cpu'):
+    def __init__(self, hidden_dim=512, dropout=0.1, features=15, num_classes=16, device='cpu'):
         super(PitchIdentifierLinear, self).__init__()
         self.features = features
 
@@ -35,7 +35,7 @@ class PitchIdentifierLinear(nn.Module):
         Feature: break_y, Max Value: 36.4, Min Value: 23.3
         '''
         normalized_features =  (features.long() - self.feature_min) / (self.feature_max - self.feature_min)
-        normalized_features = torch.cuda.FloatTensor(normalized_features)
+        normalized_features = torch.FloatTensor(normalized_features)
         return normalized_features
     def forward(self, inputs):
         x = self.normalize_features(inputs, feature_num=self.features)

@@ -1,0 +1,29 @@
+guess outcome given sequence
+
+
+guess missing pitch in strikeout sequence
+
+
+guess pitch based on description
+	inputs: px, pz, start_speed, end_speed, spin_rate, spin_dir, break_angle, break_length, break_y
+        classes: changeup, curveball, eephus, cutter, four-seam fastball, pitchout, splitter, two-seam fastball, intentional ball, knuckle curve, knuckleball, screwball, sinker, slider
+	preprocessing needed: remove extraneous columns from pitches csv, make into pickle?, encode pitch data
+
+
+	DATA
+	  px     pz  start_speed  end_speed  spin_rate  spin_dir  break_angle  break_length  break_y
+0  0.416  2.963         92.9       84.1   2305.052   159.235        -25.0           3.2     23.7
+1 -0.191  2.347         92.8       84.1   2689.935   151.402        -40.7           3.4     23.7
+2 -0.518  3.284         94.1       85.2   2647.972   145.125        -43.7           3.7     23.7
+3 -0.641  1.221         91.0       84.0   1289.590   169.751         -1.3           5.0     23.8
+4 -1.821  2.083         75.4       69.6   1374.569   280.671         18.4          12.0     23.8
+
+Labels:
+0    FF
+1    FF
+2    FF
+3    FF
+4    CU
+	encoding: Transformer needs sequence, batch, d_model
+	each feature is part of the sequence so 9 total tokens
+	use a learned embedding?
