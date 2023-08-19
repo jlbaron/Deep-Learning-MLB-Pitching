@@ -68,8 +68,8 @@ def main():
     val_accuracies = []
     # Training loop
     for epoch in range(args.epochs):
-        batch_losses = [2, 3]
-        batch_accuracies = [0.05, 0.07]
+        batch_losses = []
+        batch_accuracies = []
         model.train()
         for idx, (inputs, labels) in enumerate(train_loader):
             inputs = inputs.to(device)

@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 
 class PitchIdentifierLinear(nn.Module):
-    def __init__(self, hidden_dim=512, dropout=0.1, features=15, num_classes=16, device='cpu'):
+    def __init__(self, hidden_dim=512, dropout=0.1, features=15, num_classes=16, device='cuda:0'):
         super(PitchIdentifierLinear, self).__init__()
         self.features = features
-
+        self.device = device
         self.feature_min = torch.tensor([-10.5433282251965, -5.18366373737265, 33.9, 32.4, 1.214, -0.002, -59.29009,
                                          -0.524374801782275, -77.1714212303812, -24.869, -153.362, -19.7706017189303, -90.0, 0.1, 23.3], device=device)
         self.feature_max = torch.tensor([12.9529095060724, 14.8862417199696, 105.0, 96.9, 6539.259, 360.001, 40.978, 54.057,
@@ -34,12 +34,13 @@ class PitchIdentifierLinear(nn.Module):
         Feature: break_length, Max Value: 224889.3, Min Value: 0.1
         Feature: break_y, Max Value: 36.4, Min Value: 23.3
         '''
+        features = features.to(self.device)
         normalized_features =  (features.long() - self.feature_min) / (self.feature_max - self.feature_min)
-        normalized_features = torch.FloatTensor(normalized_features)
+        normalized_features = torch.tensor(normalized_features, dtype=torch.float, device=self.device)
         return normalized_features
     def forward(self, inputs):
         x = self.normalize_features(inputs, feature_num=self.features)
-
+        x = x.to(self.device)
         x = self.drop(self.fc1(x))
         x = self.gelu(x)
         logits = self.fc2(x) #pass through classifier for class scores

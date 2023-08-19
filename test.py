@@ -26,10 +26,10 @@ from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.manifold import TSNE
 from torch.utils.data import DataLoader
 from models.pid_linear import PitchIdentifierLinear  # Update the model import as needed
-from train import CustomDataset
+from utils import PitchDataset
 
 parser = argparse.ArgumentParser(description='MLB-DeepLearning')
-parser.add_argument('--config', default='./config.yaml')
+parser.add_argument('--config', default='./configs/configs_pid_linear.yaml')
 
 def load_model(model_path):
     model = PitchIdentifierLinear()  # Replace with your actual model class
@@ -80,26 +80,28 @@ def evaluate_classification(model, test_loader):
 # currently bugged!
 def visualize_tSNE(model, test_loader):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(device)
     model.to(device)
 
     # Set the model to evaluation mode
     model.eval()
 
-    embeddings = []
-    targets = []
+    embeddings = None
+    targets = None
 
     with torch.no_grad():
         for inputs, labels in test_loader:
             inputs = inputs.to(device)
+            labels = labels.to(device)
 
             # Get the output embeddings of your model
-            outputs = model.get_embeddings(inputs)
-            embeddings.extend(outputs.cpu().numpy())
-            targets.extend(labels.numpy())
+            outputs = model.forward(inputs)
+            embeddings = outputs if embeddings == None else torch.cat((embeddings, outputs))
+            targets = labels if targets == None else torch.cat((targets, labels))
 
     # Perform t-SNE to reduce the embeddings to 2 dimensions
     tsne = TSNE(n_components=2, random_state=42)
-    embeddings_2d = tsne.fit_transform(embeddings)
+    embeddings_2d = tsne.fit_transform(embeddings.cpu())
 
     # Create a DataFrame with the t-SNE results and class labels
     tsne_df = pd.DataFrame(data=embeddings_2d, columns=['Dimension 1', 'Dimension 2'])
@@ -128,15 +130,11 @@ def main():
     model = load_model(model_path)
 
     # Load the data loaders
-    dataset = CustomDataset(args.dataset)
-    train_size = int(args.train_ratio * len(dataset))
-    test_size = len(dataset) - train_size
-    train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    test_dataset = PitchDataset(args.dataset, False)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True)
 
     # Call the evaluation function
-    evaluate_classification(model, test_loader)
+    # evaluate_classification(model, test_loader)
 
     # Call the t-SNE visualization function
     visualize_tSNE(model, test_loader)
