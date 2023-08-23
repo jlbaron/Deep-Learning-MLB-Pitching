@@ -17,7 +17,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 # models
-from models.pid_transformer import PitchIdentifierTransformer
+from models.so_transformer import PitchSequenceTransformer
 from models.pid_linear import PitchIdentifierLinear
 
 parser = argparse.ArgumentParser(description='MLB-DeepLearning')
@@ -44,8 +44,8 @@ def main():
     # Set up the model and move it to GPU if available
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"device={device}")
-    if args.model == "PID_Transformer":
-        model = PitchIdentifierTransformer(d_model=args.d_model, nhead=args.nhead, dim_feedforward=args.dim_feedforward, dropout=args.dropout, num_layers=args.num_layers, device=device)
+    if args.model == "SO_Transformer":
+        model = PitchSequenceTransformer(d_model=args.d_model, nhead=args.nhead, dim_feedforward=args.dim_feedforward, dropout=args.dropout, num_layers=args.num_layers, device=device)
     elif args.model == "PID_Linear":
         model = PitchIdentifierLinear(hidden_dim=args.hidden_dim, dropout=args.dropout, device=device)
     
