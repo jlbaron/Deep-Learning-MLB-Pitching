@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
 
-class PitchIdentifierTransformer(nn.Module):
+# takes a sequence of pitches described by location, speed, spin, and other descriptors
+class PitchSequenceTransformer(nn.Module):
     def __init__(self, d_model, num_layers, dim_feedforward, nhead, dropout=0.1, features=9, num_classes=16, device='cpu'):
-        super(PitchIdentifierTransformer, self).__init__()
+        super(PitchSequenceTransformer, self).__init__()
         self.d_model = d_model
         self.num_layers = num_layers
         self.dim_feedforward = dim_feedforward
@@ -43,24 +44,11 @@ class PitchIdentifierTransformer(nn.Module):
         return normalized_features
     def forward(self, inputs):
         x = self.normalize_features(inputs)
-        #simply copy every feature to size d_model
-        #d_model=4 then seq0=feature1, feature1, feature1, feature1
-        # Expand the dimensions of x to [Batch, features, 1]
-        x = x.unsqueeze(2)
+        # embed pitch description data to the size of d_model
+        # do this for every pitch in sequence
+        # replace one pitch with a mask token
+        # use this for regular training
+        # take final trained model and convert to strike out generator
 
-        # Duplicate each feature in the last dimension to get [Batch, features, d_model]
-        x = x.repeat(1, 1, self.d_model)
-        #outputs [N, features, d_model]
-
-        #add token to make [N, features+1, d_model]
-        cls_token_emb = self.cls_token_emb.expand(x.shape[0], -1, -1)
-        x = torch.cat([cls_token_emb, x], dim=1)
-
-        # Apply transformer layers
-        x = self.transformer(x)
-
-        # Global average pooling on the CLS token
-        x = x.permute(1, 0, 2) #make features first
-        x = x[0] #extract cls token
-        logits = self.fc(x) #pass through classifier for class scores
-        return logits
+        # should consider pitchers arsenal
+        return x
