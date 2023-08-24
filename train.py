@@ -138,14 +138,14 @@ def main():
     plt.title("Training and Validation Loss")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
-    plt.savefig("loss.png")
+    plt.savefig("figures\\loss.png")
     plt.show()
     plt.plot(train_accuracies, label="Training Accuracies")
     plt.plot(val_accuracies, label="Validation Accuracies")
     plt.title("Training and Validation Accuracy")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
-    plt.savefig("acc.png")
+    plt.savefig("figures\\acc.png")
     plt.show()
 
 if __name__ == "__main__":

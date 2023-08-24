@@ -20,13 +20,19 @@ import argparse
 import torch
 import torch.nn as nn
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.manifold import TSNE
 from torch.utils.data import DataLoader
 from models.pid_linear import PitchIdentifierLinear  # Update the model import as needed
 from utils import PitchDataset
+
+class_names = {
+    0: 'Changeup', 1: 'Curveball', 2: 'Eephus', 3: 'Cutter',
+    4: 'Four-seam Fastball', 5: 'Splitter', 6: 'Two-seam Fastball',
+    7: 'Knuckle Curve', 8: 'Knuckleball', 9: 'Screwball',
+    10: 'Sinker', 11: 'Slider'
+}
 
 parser = argparse.ArgumentParser(description='MLB-DeepLearning')
 parser.add_argument('--config', default='./configs/configs_pid_linear.yaml')
@@ -37,13 +43,7 @@ def load_model(model_path):
     model.eval()
     return model
 
-def evaluate_classification(model, test_loader):
-    class_names = {
-        0: 'Changeup', 1: 'Curveball', 2: 'Eephus', 3: 'Cutter',
-        4: 'Four-seam Fastball', 5: 'Splitter', 6: 'Two-seam Fastball',
-        7: 'Knuckle Curve', 8: 'Knuckleball', 9: 'Screwball',
-        10: 'Sinker', 11: 'Slider'
-    }
+def create_confusion_matrix(model, test_loader):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
@@ -71,14 +71,16 @@ def evaluate_classification(model, test_loader):
 
     # Generate classification report
     class_report = classification_report(y_true, y_pred, target_names=class_names.values())
+    conf_matrix = pd.DataFrame(conf_matrix, columns=class_names.values(), index=class_names.values())
 
     print("Confusion Matrix:")
-    print(pd.DataFrame(conf_matrix, columns=class_names.values(), index=class_names.values()))
+    print(conf_matrix)
     print("\nClassification Report:")
     print(class_report)
+    conf_matrix.to_excel("data\\confusion.xlsx")
 
-# currently bugged!
-def visualize_tSNE(model, test_loader):
+# saves to a pickle
+def create_tSNE(model, test_loader):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(device)
     model.to(device)
@@ -86,8 +88,8 @@ def visualize_tSNE(model, test_loader):
     # Set the model to evaluation mode
     model.eval()
 
-    embeddings = None
-    targets = None
+    embeddings = []
+    targets = []
 
     with torch.no_grad():
         for inputs, labels in test_loader:
@@ -96,22 +98,43 @@ def visualize_tSNE(model, test_loader):
 
             # Get the output embeddings of your model
             outputs = model.forward(inputs)
-            embeddings = outputs if embeddings == None else torch.cat((embeddings, outputs))
-            targets = labels if targets == None else torch.cat((targets, labels))
 
+            embeddings.append(outputs)
+            targets.append(labels)
+            
+    embeddings = torch.cat(embeddings)
+    targets = torch.cat(targets)
+
+    print(embeddings.shape) # [569051, 16]
     # Perform t-SNE to reduce the embeddings to 2 dimensions
-    tsne = TSNE(n_components=2, random_state=42)
+    tsne = TSNE(n_components=2, random_state=42, verbose=True)
     embeddings_2d = tsne.fit_transform(embeddings.cpu())
 
     # Create a DataFrame with the t-SNE results and class labels
     tsne_df = pd.DataFrame(data=embeddings_2d, columns=['Dimension 1', 'Dimension 2'])
-    tsne_df['Class'] = targets
+    # tsne_df.to_pickle("t-sne.pkl")
+    tsne_df['Class'] = targets.cpu()
+    tsne_df.to_pickle("data\\t-sne.pkl")
+
+def visualize_tSNE(model, test_loader):
+    tsne_df = pd.read_pickle("data\\t-sne.pkl")
+    print(tsne_df.head())
 
     # Plot the t-SNE visualization
     plt.figure(figsize=(10, 8))
-    sns.scatterplot(x='Dimension 1', y='Dimension 2', hue='Class', data=tsne_df, palette='tab20')
-    plt.title('t-SNE Visualization of MLB Pitch Descriptions')
-    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+    # Create a scatter plot with different colors for each class
+    for class_label in tsne_df['Class'].unique():
+        subset = tsne_df[tsne_df['Class'] == class_label]
+        plt.scatter(subset['Dimension 1'], subset['Dimension 2'], label=class_names[class_label])
+
+    # Add labels and legend
+    plt.title('t-SNE Visualization')
+    plt.xlabel('Dimension 1')
+    plt.ylabel('Dimension 2')
+    plt.legend()
+
+    # Show the plot
+    plt.savefig("figures\\t-sne.png")
     plt.show()
 
 def main():
@@ -134,9 +157,10 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True)
 
     # Call the evaluation function
-    # evaluate_classification(model, test_loader)
+    # create_confusion_matrix(model, test_loader)
 
     # Call the t-SNE visualization function
+    # create_tSNE(model, test_loader)
     visualize_tSNE(model, test_loader)
 
 if __name__ == "__main__":
