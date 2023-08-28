@@ -116,16 +116,18 @@ def create_tSNE(model, test_loader):
     tsne_df['Class'] = targets.cpu()
     tsne_df.to_pickle("data\\t-sne.pkl")
 
-def visualize_tSNE(model, test_loader):
+def visualize_tSNE():
     tsne_df = pd.read_pickle("data\\t-sne.pkl")
     print(tsne_df.head())
 
     # Plot the t-SNE visualization
     plt.figure(figsize=(10, 8))
     # Create a scatter plot with different colors for each class
-    for class_label in tsne_df['Class'].unique():
+    colors = ["red", "blue", "yellow", "green", "orange", "cyan", "pink", "magenta", "brown", "black", "gray", "beige"]
+    for idx, class_label in enumerate(tsne_df['Class'].unique()):
         subset = tsne_df[tsne_df['Class'] == class_label]
-        plt.scatter(subset['Dimension 1'], subset['Dimension 2'], label=class_names[class_label])
+        plt.scatter(subset['Dimension 1'], subset['Dimension 2'], label=class_names[class_label], color=colors[idx])
+        # plt.scatter(subset['Dimension 1'], subset['Dimension 2'], label=class_names[class_label], cmap="viridis")
 
     # Add labels and legend
     plt.title('t-SNE Visualization')
@@ -149,19 +151,19 @@ def main():
             setattr(args, k, v)
 
     # Load the model
-    model_path = 'checkpoints/PID_Linear_trained.pt'
-    model = load_model(model_path)
+    # model_path = 'checkpoints/PID_Linear_trained.pt'
+    # model = load_model(model_path)
 
     # Load the data loaders
-    test_dataset = PitchDataset(args.dataset, False)
-    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True)
+    # test_dataset = PitchDataset(args.dataset, False)
+    # test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True)
 
     # Call the evaluation function
     # create_confusion_matrix(model, test_loader)
 
     # Call the t-SNE visualization function
     # create_tSNE(model, test_loader)
-    visualize_tSNE(model, test_loader)
+    visualize_tSNE()
 
 if __name__ == "__main__":
     main()
